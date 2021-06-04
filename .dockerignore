@@ -1,0 +1,12 @@
+*.Dockerfile
+Dockerfile
+docker-compose.yml
+**/.git
+
+backend/bin/
+backend/doc/
+backend/sql/
+backend/LICENSE
+backend/*.md
+backend/*.sh
+backend/.gitignore

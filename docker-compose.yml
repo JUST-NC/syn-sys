@@ -1,0 +1,60 @@
+version: '3.9'
+services:
+  ruoyi_db:
+    image: postgres:alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_PASSWORD: admin
+    ports:
+      - 5432:5432
+    volumes:
+      - type: volume
+        source: ruoyi_db_data
+        target: /var/lib/postgresql/data
+      - type: bind
+        source: ./backend/sql
+        target: /docker-entrypoint-initdb.d
+  
+  ruoyi_redis:
+    image: redis:alpine
+    ports:
+      - 6379:6379
+
+  ruoyi-be:
+    # restart: unless-stopped
+    build:
+      context: .
+      dockerfile: be.Dockerfile
+    ports:
+      - 8080:8080
+    volumes:
+      - type: volume
+        source: ruoyi_be_logs
+        target: /logs
+    depends_on:
+      - ruoyi_db
+      - ruoyi_redis
+        
+  ruoyi_fe:
+    restart: unless-stopped
+    build:
+      context: .
+      dockerfile: fe.Dockerfile
+    ports:
+      - 80:80
+      - 443:443
+    volumes:
+      - type: bind
+        source: ./nginx-conf/conf.d
+        target: /etc/nginx/conf.d
+        read_only: true
+      - type: bind
+        source: ./nginx-conf/nginx.conf
+        target: /etc/nginx/nginx.conf
+        read_only: true
+    depends_on:
+      - ruoyi-be
+    
+volumes:
+  ruoyi_be_logs: 
+  ruoyi_db_data: 

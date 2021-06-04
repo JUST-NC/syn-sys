@@ -1,0 +1,4 @@
+[submodule "backend"]
+	path = backend
+	url = git@github.com:JUST-NC/Student-Integrated-Management-System.git
+	branch = change_for_deploy
