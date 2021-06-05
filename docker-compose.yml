@@ -1,6 +1,6 @@
 version: '3'
 services:
-  ruoyi_db:
+  ruoyi-db:
     image: postgres:alpine
     restart: unless-stopped
     environment:
@@ -8,7 +8,7 @@ services:
     ports:
       - 5432:5432
     volumes:
-      - ruoyi_db_data:/var/lib/postgresql/data
+      - ruoyi-db_data:/var/lib/postgresql/data
       - ./backend/sql:/docker-entrypoint-initdb.d
   ruoyi_redis:
     image: redis:alpine
@@ -25,10 +25,10 @@ services:
     volumes:
       - ruoyi_be_logs:/logs
     depends_on:
-      - ruoyi_db
+      - ruoyi-db
       - ruoyi_redis
         
-  ruoyi_fe:
+  ruoyi-fe:
     restart: unless-stopped
     build:
       context: .
@@ -44,4 +44,4 @@ services:
     
 volumes:
   ruoyi_be_logs: 
-  ruoyi_db_data: 
+  ruoyi-db_data: 
