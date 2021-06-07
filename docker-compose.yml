@@ -23,7 +23,8 @@ services:
     ports:
       - 8080:8080
     volumes:
-      - ruoyi_be_logs:/logs
+      - ruoyi-be_logs:/logs
+      - ruoyi-be_upload:/upload-path 
     depends_on:
       - ruoyi-db
       - ruoyi_redis
@@ -43,5 +44,6 @@ services:
       - ruoyi-be
     
 volumes:
-  ruoyi_be_logs: 
+  ruoyi-be_logs: 
+  ruoyi-be_upload:
   ruoyi-db_data: 

@@ -7,7 +7,7 @@ RUN  mvn clean install && mvn clean package -f ruoyi-admin/pom.xml
 # package
 FROM openjdk:8-jre-alpine3.9
 COPY --from=builder /app/ruoyi-admin/target/ruoyi-admin.jar /app/
-RUN ls -a app
+RUN apk add --update --no-cache ttf-dejavu fontconfig
 
 EXPOSE 8080
 
