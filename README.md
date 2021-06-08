@@ -27,8 +27,28 @@ sudo DOCKER_BUILDKIT=1 docker-compose up -d
 
 ### Service 'ruoyi-be' failed to build: the --mount option requires BuildKit. 
 
-一种可能是服务器中的 Docker 版本太老了，`BuildKit` 存在于 Docker 18.09 及以上的版本。如果你有权限更新 Docker 的话，可以先尝试更新 Docker（不知道怎么更新请去读官方文档）。如果没有权限的话，请在本地的 [be.Dockerfile](./be.Dockerfile) 中，找到 `--mount=type=cache,target=/root/.m2`，并删去它。
+一种可能是服务器中的 Docker 版本太老了，因为按照官方文档描述， `BuildKit` 存在于 Docker 18.09 及以上的版本。如果你有权限更新 Docker 的话，可以先尝试更新 Docker（不知道怎么更新请去读官方文档）。如果没有办法更新的话，请在本地的 [be.Dockerfile](./be.Dockerfile) 中，找到 `--mount=type=cache,target=/root/.m2`，并删去它。
 
-另一种可能是你在使用 arm64 服务器，因为我本地测试时使用的一个开发板就存在这个问题。我的开发板安装的 Docker 似乎缺少 BuildKit ——尝试过《[Build images with BuildKit](https://docs.docker.com/develop/develop-images/build_enhancements/)》中所有启用 BuildKit 的方法都不管用。这种情况请参照上方说明，删除 `--mount=type=cache,target=/root/.m2`。
+另一种可能是你在使用 arm64 服务器，我本地测试时使用的一个开发板就存在这个问题。我的开发板安装的 Docker 似乎缺少 BuildKit ——尝试过《[Build images with BuildKit](https://docs.docker.com/develop/develop-images/build_enhancements/)》中所有启用 BuildKit 的方法都不管用。这种情况请参照上方说明，删除 `--mount=type=cache,target=/root/.m2`。
 
-删除的操作，唯一带来的不良影响是每次构建都需要重新下载依赖，导致等待时间变长，其他没有什么影响。
+删除的操作，唯一带来的不良影响是每次构建都需要重新下载依赖，导致等待时间变长。
+
+**删除的例子：**
+
+```diff
+# be.Dockerfile
+- RUN --mount=type=cache,target=/root/.m2 mvn clean install && mvn clean package -f ruoyi-admin/pom.xml
++ RUN mvn clean install && mvn clean package -f ruoyi-admin/pom.xml
+```
+
+### 后端不断重启
+
+这应该是内存不足……本地测试时使用的那个开发板就因为只有 1G 的内存出现了这个问题。可以尝试在本地的 [be.Dockerfile](./be.Dockerfile) 中，修改 `CMD` 中的参数，减少内存分配，应该能解决这个问题。实际部署到学校的服务器上，应该是没有这个问题的——总不可能给你这么小的内存吧……
+
+**例子：**
+
+```diff
+# be.Dockerfile
+- CMD ["java", "-jar", "-Duser.timezone=Asia/Shanghai", "-Xms256m", "-Xmx1024m", "-XX:MetaspaceSize=128m", "-XX:MaxMetaspaceSize=512m", "/app/ruoyi-admin.jar"]
++ CMD ["java", "-jar", "-Duser.timezone=Asia/Shanghai", "-Xms128m", "-Xmx512m", "-XX:MetaspaceSize=128m", "-XX:MaxMetaspaceSize=512m", "/app/ruoyi-admin.jar"]
+```
