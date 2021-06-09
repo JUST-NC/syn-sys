@@ -19,6 +19,7 @@
 git clone --recurse-submodules git@github.com:JUST-NC/syn-sys.git
 # 再移动到仓库所在文件夹内
 cd syn-sys
+# 可以对配置文件进行一些编辑
 # 最后运行 docker-compose
 sudo DOCKER_BUILDKIT=1 docker-compose up -d
 ```
@@ -27,13 +28,13 @@ sudo DOCKER_BUILDKIT=1 docker-compose up -d
 
 ### Service 'ruoyi-be' failed to build: the --mount option requires BuildKit. 
 
-一种可能是服务器中的 Docker 版本太老了，因为按照官方文档描述， `BuildKit` 存在于 Docker 18.09 及以上的版本。如果你有权限更新 Docker 的话，可以先尝试更新 Docker（不知道怎么更新请去读官方文档）。如果没有办法更新的话，请在本地的 [be.Dockerfile](./be.Dockerfile) 中，找到 `--mount=type=cache,target=/root/.m2`，并删去它。
+一种可能是服务器中的 Docker 版本太老了，因为按照官方文档描述， `BuildKit` 存在于 Docker 18.09 及以上的版本。如果你有权限更新 Docker 的话，可以先尝试更新 Docker（不知道怎么更新请去读官方文档）。如果没有办法更新的话，请在本地的 [be.Dockerfile](./be.Dockerfile) 中，找到 `--mount=type=cache,target=/root/.m2`，并删去它，可以参考下方的例子。
 
-另一种可能是你在使用 arm64 服务器，我本地测试时使用的一个开发板就存在这个问题。我的开发板安装的 Docker 似乎缺少 BuildKit ——尝试过《[Build images with BuildKit](https://docs.docker.com/develop/develop-images/build_enhancements/)》中所有启用 BuildKit 的方法都不管用。这种情况请参照上方说明，删除 `--mount=type=cache,target=/root/.m2`。
+另一种可能是你在使用 arm64 服务器，我本地测试时使用的一个开发板就存在这个问题。我的开发板安装的 Docker 似乎缺少 BuildKit ——尝试过《[Build images with BuildKit](https://docs.docker.com/develop/develop-images/build_enhancements/)》中所有启用 BuildKit 的方法都不管用。这种情况同样参照下方的例子，删除 `--mount=type=cache,target=/root/.m2`。
 
-删除的操作，唯一带来的不良影响是每次构建都需要重新下载依赖，导致等待时间变长。
+#### 删除的例子：
 
-**删除的例子：**
+这个操作唯一带来的不良影响是每次构建都需要重新下载依赖，导致等待的时间变长。
 
 ```diff
 # be.Dockerfile
@@ -43,9 +44,9 @@ sudo DOCKER_BUILDKIT=1 docker-compose up -d
 
 ### 后端不断重启
 
-这应该是内存不足……本地测试时使用的那个开发板就因为只有 1G 的内存出现了这个问题。可以尝试在本地的 [be.Dockerfile](./be.Dockerfile) 中，修改 `CMD` 中的参数，减少内存分配，应该能解决这个问题。实际部署到学校的服务器上，应该是没有这个问题的——总不可能给你这么小的内存吧……
+这应该是内存不足……本地测试时使用的那个开发板就因为只有 1G 的内存出现了这个问题。可以尝试在本地的 [be.Dockerfile](./be.Dockerfile) 中，修改 `CMD` 中的参数，减少内存分配，能部分解决这个问题。实际部署到学校的服务器上，应该是没有这个问题的——学校还没抠到这个地步吧……
 
-**例子：**
+#### 例子：
 
 ```diff
 # be.Dockerfile
