@@ -9,7 +9,7 @@ services:
       - 5432:5432
     volumes:
       - ruoyi-db_data:/var/lib/postgresql/data
-      - ./backend/sql:/docker-entrypoint-initdb.d
+      - ./backend/sql:/docker-entrypoint-initdb.d/
   ruoyi_redis:
     image: redis:alpine
     ports:
